@@ -1,0 +1,20 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const { keyPair, sharedKey, encryptFrame, decryptFrame, MAX_FRAME_BYTES } = require('../src/frame-crypto');
+const { write } = require('../src/media-packet');
+test('cifra los fotogramas entre claves efímeras y detecta alteraciones', () => {
+  const sender = keyPair();
+  const receiver = keyPair();
+  const a = sharedKey(sender, receiver.publicKey);
+  const b = sharedKey(receiver, sender.publicKey);
+  assert.deepEqual(a, b);
+  const jpeg = Buffer.from(write({ codec: 'vp8', type: 'key', width: 1280, height: 720, id: 1, timestamp: 1000 }, new Uint8Array([12, 34, 56, 78])));
+  const packet = encryptFrame(a, jpeg);
+  assert.equal(packet.includes(jpeg), false);
+  assert.deepEqual(decryptFrame(b, packet), jpeg);
+  assert.notDeepEqual(encryptFrame(a, jpeg), packet);
+  packet[packet.length - 1] ^= 1;
+  assert.throws(() => decryptFrame(b, packet));
+  assert.throws(() => sharedKey(sender, 'invalid'));
+  assert.throws(() => encryptFrame(a, Buffer.alloc(MAX_FRAME_BYTES + 1)));
+});

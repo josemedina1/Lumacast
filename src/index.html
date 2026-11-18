@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; media-src 'self' blob:; connect-src 'none'; object-src 'none'; base-uri 'none'; frame-src 'none'">
+  <title>LumaCast</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="window-bar">
+    <span class="window-title">LumaCast · 0.13.0</span>
+    <button id="settings-button" class="settings-button" type="button">Configuración</button><div class="window-buttons">
+      <button id="window-minimize" type="button" aria-label="Minimizar" title="Minimizar">&#x2212;</button>
+      <button id="window-maximize" type="button" aria-label="Maximizar" title="Maximizar">&#x25A1;</button>
+      <button id="window-close" type="button" aria-label="Cerrar" title="Cerrar">&#x2715;</button>
+    </div>
+  </div>
+  <header><div class="brand"><span class="logo"><svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M12 33V17a3 3 0 0 1 3-3h18a3 3 0 0 1 3 3v11a3 3 0 0 1-3 3H22" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M12 24a12 12 0 0 1 12 12M12 30a6 6 0 0 1 6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="36" r="1.8" fill="currentColor"/></svg></span><div>Luma<strong>Cast</strong><small>Ideas que conectan.</small></div></div><span class="badge">SOLO VISUALIZACIÓN</span></header>
+  <main>
+    <section id="home">
+      <div class="home-copy"><p class="eyebrow">DESDE TU NOTEBOOK</p>
+      <h1>Una pantalla.<br>Un espacio más grande.</h1>
+      <p class="intro">Comparte lo que ves en tu notebook con tu PC de escritorio.<br>Sin cables de video y sin control remoto.</p></div>
+      <div class="choices single">
+        <button id="choose-send" class="choice" disabled><span class="symbol">↗</span><h2>Transmitir pantalla</h2><p>Elige una pantalla o una ventana.<br>Conexión automática al receptor configurado.</p><span class="action">Transmitir ahora →</span></button>
+      </div>
+      <div class="home-details"><p class="destination"><span class="connection-dot" aria-hidden="true"></span> Receptor configurado · Conexión directa</p>
+      <p class="footnote">La app debe estar abierta en el receptor. Ambos equipos deben estar en la misma red.<br>Tú eliges qué compartir antes de cada transmisión. Imagen y audio del equipo, sin usar el micrófono.</p></div>
+    </section>
+    <section id="settings" hidden>
+      <p class="eyebrow">CONFIGURACIÓN DEL EQUIPO</p><h1 id="settings-title">Comencemos.</h1>
+      <p id="startup-notice" class="footnote" role="status" hidden></p>
+      <form id="settings-form">
+        <fieldset><legend>¿Cómo usarás este equipo?</legend><label><input type="radio" name="role" value="sender" checked> Emisor · Notebook</label><label><input type="radio" name="role" value="receiver"> Receptor · PC que muestra la imagen</label></fieldset>
+        <label class="field">IP del PC receptor<input id="receiver-ip" required inputmode="decimal" value="192.168.130.14" placeholder="192.168.130.14" maxlength="15"></label>
+        <p class="footnote">En el emisor solo necesitas indicar esta IP. En el receptor conserva la IP fija configurada en Windows; este campo no cambia su dirección de red.</p>
+        <label class="field">Calidad de transmisión<select id="quality"><option value="balanced">Equilibrada · Hasta Full HD / 30 fps (recomendada)</option><option value="sharp">Nitidez · Priorizar resolución Full HD</option><option value="smooth">Fluidez · Hasta HD / 30 fps, menor uso de Wi-Fi</option></select></label>
+        <label><input id="auto-start" type="checkbox" checked> Iniciar con Windows en la bandeja de iconos (solo receptor)</label>
+        <div class="form-actions"><button id="save-settings" class="primary" type="submit">Guardar y continuar</button><button id="settings-cancel" class="secondary" type="button">Volver</button></div>
+      </form>
+    </section>
+    <section id="picker" hidden>
+      <p class="eyebrow">COMPARTE SOLO LO QUE ELIJAS</p><h1 id="picker-title">¿Qué vamos a transmitir?</h1>
+      <div class="source-tabs" role="group" aria-label="Tipo de contenido"><button data-kind="screen" class="secondary">Pantalla completa</button><button data-kind="window" class="secondary">App o ventana</button><button data-kind="extended" class="secondary">Segunda pantalla</button></div>
+      <p id="source-help" class="footnote"></p>
+      <button id="display-settings" class="secondary" hidden>Abrir configuración de pantallas de Windows</button>
+      <div id="source-list" class="source-list"></div>
+      <p id="selected-label" class="footnote">Selecciona el contenido que quieres compartir.</p>
+      <div id="audio-choice"><label><input id="share-audio" type="checkbox" checked> Compartir audio del equipo</label><span>Incluye sonidos de otras aplicaciones, incluso al compartir una ventana. No usa el micrófono.</span></div>
+      <div class="form-actions"><button id="start-selected" class="primary" disabled>Transmitir selección</button><button id="refresh-sources" class="secondary">Actualizar lista</button><button id="cancel-picker" class="secondary">Cancelar</button><button id="stop-picker" class="danger" hidden>Detener transmisión</button></div>
+    </section>
+    <section id="receiver" class="receiver-lobby" hidden>
+      <div class="receiver-beacon" aria-hidden="true"><span class="beacon-ring"></span><span class="beacon-ring"></span><span class="beacon-ring"></span><span class="beacon-core"><svg viewBox="0 0 48 48" fill="none" aria-hidden="true"><path d="M12 33V17a3 3 0 0 1 3-3h18a3 3 0 0 1 3 3v11a3 3 0 0 1-3 3H22" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M12 24a12 12 0 0 1 12 12M12 30a6 6 0 0 1 6 6" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><circle cx="12" cy="36" r="1.8" fill="currentColor"/></svg></span></div>
+      <p class="eyebrow">ESPACIO DE PRESENTACIÓN</p>
+      <h1>Todo listo para compartir.</h1>
+      <p class="intro">Abre LumaCast en tu notebook y elige qué transmitir.<br>Tu contenido aparecerá aquí automáticamente.</p>
+      <div class="receiver-ready"><span class="connection-dot" aria-hidden="true"></span> Esperando tu transmisión</div>
+      <p class="receiver-caption">La X oculta el receptor. Para cerrarlo, usa «Salir de LumaCast» en el icono de la bandeja.</p>
+    </section>
+    <section id="view" hidden>
+      <div class="view-heading"><div><p class="eyebrow" id="view-role"></p><h2 id="view-title"></h2></div><div class="view-actions"><button id="toggle-audio" class="secondary" hidden>Silenciar audio</button><button id="change-source" class="secondary">Cambiar pestaña</button><button id="fullscreen" class="secondary">Pantalla completa</button><button id="stop" class="danger">Detener</button></div></div>
+      <div class="stage"><video id="video" autoplay muted playsinline></video><canvas id="compatible-video" hidden></canvas><div id="video-wait" role="status" aria-live="polite"><div class="video-loading"><div class="connection-animation" aria-hidden="true">
+<svg id="dotted-line" xmlns="http://www.w3.org/2000/svg" width="168" height="104" viewBox="0 0 168 104">
+  <defs>
+    <mask id="theMask" maskUnits="userSpaceOnUse">
+      <path id="maskPath" pathLength="1" d="M1 0.999939C1 0.999939 90.5 1 144 0.999939C151.34 0.99993 155.784 1.87576 160.5 7.5C165.142 13.036 166.633 20.2765 166.5 27.5C166.373 34.3552 165.272 39.0771 160.5 44C155.679 48.9725 150.926 50.5 144 50.5C101.5 50.5 75 50.5 31.5 50.5C22.24 50.5 15.0549 51.9938 9 59C4.18706 64.5691 3.1382 70.6407 3 78C2.85496 85.7232 4.46059 91.1163 10 96.5C16.2512 102.575 31.5 102.5 31.5 102.5H166.5" fill="none" stroke="#fff" stroke-linecap="round" stroke-miterlimit="4" stroke-width="2" />
+    </mask>
+  </defs>
+  <g id="maskReveal" mask="url(#theMask)">
+  <path id="dashedPath" d="M1 0.999939C1 0.999939 90.5 1 144 0.999939C151.34 0.99993 155.784 1.87576 160.5 7.5C165.142 13.036 166.633 20.2765 166.5 27.5C166.373 34.3552 165.272 39.0771 160.5 44C155.679 48.9725 150.926 50.5 144 50.5C101.5 50.5 75 50.5 31.5 50.5C22.24 50.5 15.0549 51.9938 9 59C4.18706 64.5691 3.1382 70.6407 3 78C2.85496 85.7232 4.46059 91.1163 10 96.5C16.2512 102.575 31.5 102.5 31.5 102.5H166.5" fill="none" stroke="#b8c9d8" stroke-linecap="round" stroke-miterlimit="4" stroke-width="2" stroke-dasharray="5 5" />
+  </g>
+</svg>
+
+<svg id="cloud-image" width="245" height="160" viewBox="0 0 245 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g id="loading-notebook">
+    <circle cx="28.5" cy="29" r="28.5" fill="#f3f4f4"/>
+    <g stroke="#282828" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="14" y="17" width="29" height="20" rx="2"/>
+      <path d="M14 37L9 42H48L43 37M24 40H33"/>
+    </g>
+  </g>
+  <g id="loading-penguin">
+    <path d="M90 104C81 104 75 99 75 91C75 84 79 79 86 77C87 66 96 60 106 62C113 51 129 51 138 58C143 61 146 66 147 71C158 70 166 78 166 87C168 97 160 104 150 104Z" fill="#f3f4f4"/>
+    <path d="M120 63C115 63 112 67 112 72C112 75 111 77 109 80C106 82 104 86 105 88C107 89 110 86 111 84C110 90 111 94 115 97L112 100H121L124 98L127 100H135L132 96C135 92 134 87 132 82C136 85 139 88 140 86C140 83 135 79 130 77C129 75 129 73 129 71L134 69L128 67C126 64 123 63 120 63Z" fill="#282828"/>
+  </g>
+  <g id="loading-desktop">
+    <circle cx="215.5" cy="130" r="29.5" fill="#f3f4f4"/>
+    <g stroke="#282828" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="197" y="117" width="25" height="19" rx="2"/>
+      <path d="M197 132H222M209.5 136V142M204 142H215"/>
+      <rect x="226" y="116" width="8" height="26" rx="1.5"/>
+      <path d="M229 121H231M229 125H231"/>
+      <circle cx="230" cy="137" r=".8" fill="#282828" stroke="none"/>
+    </g>
+  </g>
+</svg>
+</div><strong id="video-wait-label">Conectando</strong></div></div></div>
+      <p class="footnote" id="view-note"></p>
+      <p id="transmission-stats" class="footnote" aria-live="off"></p>
+    </section>
+    <div id="status" role="status" aria-live="polite">Preparando la aplicación…</div>
+  </main>
+  <footer><span>LUMACAST <span class="version">/ 0.13.0</span></span><span>Red local · Una conexión a la vez</span></footer>
+  <script src="media-packet.js"></script>
+  <script src="video-pacing.js"></script>
+  <script src="live-video.js"></script>
+  <script src="audio-packet.js"></script>
+  <script src="live-audio.js"></script>
+  <script src="renderer.js"></script>
+</body>
+</html>

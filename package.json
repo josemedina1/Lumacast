@@ -1,0 +1,54 @@
+{
+  "name": "tsg-pantalla",
+  "version": "0.13.0",
+  "description": "Transmisión de pantalla en red local, sin control remoto",
+  "author": "LumaCast",
+  "private": true,
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "test": "node --test test/*.test.js",
+    "test:desktop": "node test/desktop-smoke.cjs",
+    "dist": "electron-builder --win nsis --x64 && npm run verify:installer",
+    "verify:installer": "node scripts/verify-installer.cjs"
+  },
+  "dependencies": {
+    "ws": "8.22.0"
+  },
+  "devDependencies": {
+    "electron": "44.9.1",
+    "electron-builder": "26.15.3",
+    "playwright-core": "^1.64.1"
+  },
+  "build": {
+    "compression": "store",
+    "appId": "cl.tsg.pantalla",
+    "productName": "LumaCast",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "src/icon.ico",
+      "signExecutable": false
+    },
+    "nsis": {
+      "artifactName": "LumaCast-${version}-Instalador.exe",
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": false,
+      "createDesktopShortcut": true,
+      "shortcutName": "LumaCast",
+      "runAfterFinish": true,
+      "include": "build/installer.nsh"
+    },
+    "executableName": "LumaCast",
+    "asarUnpack": [
+      "src/native/windows-catalog.ps1"
+    ]
+  }
+}
